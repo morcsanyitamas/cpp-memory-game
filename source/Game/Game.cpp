@@ -22,12 +22,12 @@ Game::Game() : ui(*this) {
 
 void Game::run() {
     ui.init();
-    gameStart = true;
     ui.renderBattlefield(currentPlayer);
 
-    while (!gameEnded) {
+    while (running) {
 
-        ui.handleEvents(gameEnded, gameStart, unitPlacement, currentPlayer, playerUnits);
+        ui.handleEvents(running, unitPlacement, currentPlayer, playerUnits);
+
            
     }
 }

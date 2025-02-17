@@ -51,6 +51,7 @@ public:
 protected:
     bool gameEnded = false;
     bool gameStart = false;
+    bool running = true;
     bool unitPlacement = false;
     bool battleStart = false;
     const int gridSize = 10;

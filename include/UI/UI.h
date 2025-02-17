@@ -24,6 +24,8 @@ public:
 
     //void placeUnits(bool &gameEnded, Players &player);
 
+    void delay(int time);
+
     void renderMenuUI();
 
     void renderUnitPlacement(const Players &currentPlayer, const std::vector<Ranks> &playerUnits);
@@ -56,11 +58,11 @@ public:
 
     void drawTexture(Texture &texture, SDL_Rect &rect, int width, int height, int x, int y);
 
-    void handleEvents(bool &gameEnded, bool &gameStart,
+    void handleEvents(bool &running,
                       bool &unitPlacement, Players &currentPlayer,
                       const std::vector<Ranks> &playerUnits);
 
-    void handleMouseDownEvent(const SDL_Event &e, bool &gameEnded, bool &gameStart, bool &unitPlacement,
+    void handleMouseDownEvent(const SDL_Event &e, bool &running, bool &unitPlacement,
                               Players &currentPlayer, const std::vector<Ranks> &playerUnits, bool &isDragging,
                               SDL_Point &originalPosition);
 

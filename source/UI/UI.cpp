@@ -54,6 +54,11 @@ bool UI::init() {
     return true;
 }
 
+void UI::delay(int time) {
+    SDL_Delay(time);
+}
+
+
 Texture UI::loadTexture(const string &filename) {
     SDL_Texture *imgTexture = IMG_LoadTexture(renderer, filename.c_str());
     if (nullptr == imgTexture) {
@@ -278,19 +283,19 @@ bool isMouseInsideRect(int mouseX, int mouseY, SDL_Rect &rect) {
             mouseY < rect.y + rect.h);
 }
 
-void UI::handleEvents(bool &gameEnded, bool &gameStart, bool &unitPlacement,
+void UI::handleEvents(bool &running, bool &unitPlacement,
                       Players &currentPlayer,
                       const vector<Ranks> &playerUnits) {
     SDL_Event e;
 
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT) {
-            gameEnded = true;
+            running = false;
             break;
         }
 
         if (e.type == SDL_MOUSEBUTTONDOWN) {
-            handleMouseDownEvent(e, gameEnded, gameStart, unitPlacement, currentPlayer,
+            handleMouseDownEvent(e, running, unitPlacement, currentPlayer,
                                  playerUnits, isDragging, originalPosition);
             break;
         }
@@ -307,7 +312,7 @@ void UI::handleEvents(bool &gameEnded, bool &gameStart, bool &unitPlacement,
     }
 }
 
-void UI::handleMouseDownEvent(const SDL_Event &e, bool &gameEnded, bool &gameStart, bool &unitPlacement,
+void UI::handleMouseDownEvent(const SDL_Event &e, bool &running, bool &unitPlacement,
                               Players &currentPlayer, const vector<Ranks> &playerUnits, bool &isDragging,
                               SDL_Point &originalPosition) {
     int mouseX = e.button.x;
@@ -397,22 +402,19 @@ void UI::handleMouseUpEvent(const SDL_Event &e, SDL_Point &originalPosition,
         flooredY = snappedPosition.y < 0 ? -1 : (snappedPosition.y + 10) / 80;
     }
 
-    if (selectedPlacerRect != nullptr) {
+    if (selectedCardRect != nullptr) {
         //cout << game.checkUnitPlaceInBounds({flooredX, flooredY}) << endl;
-        if (game.checkMoveInBounds({flooredX, flooredY}) && game.checkTargetFieldEmpty({flooredX, flooredY})) {
-            selectedPlacerRect->x = snappedPosition.x;
-            selectedPlacerRect->y = snappedPosition.y;
+        if (true) {
+            selectedCardRect->x = snappedPosition.x;
+            selectedCardRect->y = snappedPosition.y;
             auto pos = calculateGridPosition(originalPosition, currentPlayer);
-            if (game.checkMoveInBounds({pos.x, pos.y}) && !game.checkTargetFieldEmpty({pos.x, pos.y})) {
+            /*if (game.checkMoveInBounds({pos.x, pos.y}) && !game.checkTargetFieldEmpty({pos.x, pos.y})) {
                 game.removeUnit(pos);
             }
-            game.placeUnit({flooredX, flooredY}, selectedPlacerRect->player, selectedPlacerRect->rank);
-        } else {
-            selectedPlacerRect->x = originalPosition.x;
-            selectedPlacerRect->y = originalPosition.y;
+            game.placeUnit({flooredX, flooredY}, selectedPlacerRect->player, selectedPlacerRect->rank);*/
         }
         isDragging = false;
-        selectedPlacerRect = nullptr;
+        selectedCardRect = nullptr;
         originalPosition = {0, 0};
     }
 
