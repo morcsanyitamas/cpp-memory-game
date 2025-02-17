@@ -30,7 +30,7 @@ public:
 
     void renderUnitPlacement(const Players &currentPlayer, const std::vector<Ranks> &playerUnits);
 
-    void renderBattlefield(const Players &currentPlayer);
+    void renderBattlefield();
 
     void renderMove(const Players &currentPlayer);
 
@@ -58,19 +58,16 @@ public:
 
     void drawTexture(Texture &texture, SDL_Rect &rect, int width, int height, int x, int y);
 
-    void handleEvents(bool &running,
-                      bool &unitPlacement, Players &currentPlayer,
-                      const std::vector<Ranks> &playerUnits);
+    void handleEvents(bool &running);
 
-    void handleMouseDownEvent(const SDL_Event &e, bool &running, bool &unitPlacement,
-                              Players &currentPlayer, const std::vector<Ranks> &playerUnits, bool &isDragging,
+    void handleMouseDownEvent(const SDL_Event &e, bool &running, bool &isDragging,
                               SDL_Point &originalPosition);
 
-    void handleMouseUpEvent(const SDL_Event &e, SDL_Point &originalPosition, Players &currentPlayer);
+    void handleMouseUpEvent(const SDL_Event &e, SDL_Point &originalPosition);
 
     void handleMouseMotionEvent(const SDL_Event &e, const bool &isDragging);
 
-    SDL_Point calculateGridPosition(const SDL_Point &position, const Players &currentPlayer) const;
+    SDL_Point calculateGridPosition(const SDL_Point &position) const;
 
     SDL_Point snapToGrid(int mouseX, int mouseY) const;
 

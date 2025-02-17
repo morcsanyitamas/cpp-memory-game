@@ -101,7 +101,7 @@ bool UI::initSDLImage() {
     }
     return true;
 }
-
+/*
 void UI::renderUnitPlacement(const Players &currentPlayer, const vector<Ranks> &playerUnits) {
     SDL_SetRenderDrawColor(renderer, 53, 24, 6, 0);
     SDL_RenderClear(renderer);
@@ -119,7 +119,8 @@ void UI::renderUnitPlacement(const Players &currentPlayer, const vector<Ranks> &
 
     SDL_RenderPresent(renderer);
 }
-
+*/
+/*
 void UI::drawBattlefieldUnits(const Players &currentPlayer) {
     unitRects.clear();
     unitRects.resize(game.getGridSize() * game.getGridSize());
@@ -138,9 +139,9 @@ void UI::drawBattlefieldUnits(const Players &currentPlayer) {
             }
         }
     }
-}
+}*/
 
-void UI::renderBattlefield(const Players &currentPlayer) {
+void UI::renderBattlefield() {
     SDL_RenderClear(renderer);
 
     drawPlayerUI();
@@ -283,9 +284,7 @@ bool isMouseInsideRect(int mouseX, int mouseY, SDL_Rect &rect) {
             mouseY < rect.y + rect.h);
 }
 
-void UI::handleEvents(bool &running, bool &unitPlacement,
-                      Players &currentPlayer,
-                      const vector<Ranks> &playerUnits) {
+void UI::handleEvents(bool &running) {
     SDL_Event e;
 
     while (SDL_PollEvent(&e) != 0) {
@@ -295,8 +294,7 @@ void UI::handleEvents(bool &running, bool &unitPlacement,
         }
 
         if (e.type == SDL_MOUSEBUTTONDOWN) {
-            handleMouseDownEvent(e, running, unitPlacement, currentPlayer,
-                                 playerUnits, isDragging, originalPosition);
+            handleMouseDownEvent(e, running, isDragging, originalPosition);
             break;
         }
 
@@ -306,14 +304,13 @@ void UI::handleEvents(bool &running, bool &unitPlacement,
         }
 
         if (e.type == SDL_MOUSEBUTTONUP) {
-            handleMouseUpEvent(e, originalPosition, currentPlayer);
+            handleMouseUpEvent(e, originalPosition);
             break;
         }
     }
 }
 
-void UI::handleMouseDownEvent(const SDL_Event &e, bool &running, bool &unitPlacement,
-                              Players &currentPlayer, const vector<Ranks> &playerUnits, bool &isDragging,
+void UI::handleMouseDownEvent(const SDL_Event &e, bool &running, bool &isDragging,
                               SDL_Point &originalPosition) {
     int mouseX = e.button.x;
     int mouseY = e.button.y;
@@ -380,15 +377,14 @@ void UI::handleMouseMotionEvent(const SDL_Event &e, const bool &isDragging) {
     */
 }
 
-void UI::handleMouseUpEvent(const SDL_Event &e, SDL_Point &originalPosition,
-                            Players &currentPlayer) {
+void UI::handleMouseUpEvent(const SDL_Event &e, SDL_Point &originalPosition) {
     int mouseX = e.button.x;
     int mouseY = e.button.y;
     int flooredX = 0;
     int flooredY = 0;
 
-    auto snappedPosition = snapToGrid(mouseX, mouseY);
-
+    //auto snappedPosition = snapToGrid(mouseX, mouseY);
+/*
     if (!game.getUnitPlacement()) {
         if (currentPlayer == Players::Blue) {
             flooredX = (snappedPosition.x + 10) / 80;
@@ -401,13 +397,13 @@ void UI::handleMouseUpEvent(const SDL_Event &e, SDL_Point &originalPosition,
         flooredX = (snappedPosition.x + 10) / 80;
         flooredY = snappedPosition.y < 0 ? -1 : (snappedPosition.y + 10) / 80;
     }
-
+*/
     if (selectedCardRect != nullptr) {
         //cout << game.checkUnitPlaceInBounds({flooredX, flooredY}) << endl;
         if (true) {
-            selectedCardRect->x = snappedPosition.x;
-            selectedCardRect->y = snappedPosition.y;
-            auto pos = calculateGridPosition(originalPosition, currentPlayer);
+            //selectedCardRect->x = snappedPosition.x;
+            //selectedCardRect->y = snappedPosition.y;
+            //auto pos = calculateGridPosition(originalPosition, currentPlayer);
             /*if (game.checkMoveInBounds({pos.x, pos.y}) && !game.checkTargetFieldEmpty({pos.x, pos.y})) {
                 game.removeUnit(pos);
             }
@@ -417,7 +413,7 @@ void UI::handleMouseUpEvent(const SDL_Event &e, SDL_Point &originalPosition,
         selectedCardRect = nullptr;
         originalPosition = {0, 0};
     }
-
+/*
     if (selectedRect != nullptr) {
         auto from = calculateGridPosition(originalPosition, currentPlayer);
         cout << "FROM X: " << from.x << " FROM Y: " << from.y << endl;
@@ -441,9 +437,11 @@ void UI::handleMouseUpEvent(const SDL_Event &e, SDL_Point &originalPosition,
         selectedRect = nullptr;
         originalPosition = {0, 0};
     }
+    */
 }
 
-SDL_Point UI::calculateGridPosition(const SDL_Point &position, const Players &currentPlayer) const {
+/*
+SDL_Point UI::calculateGridPosition(const SDL_Point &position) const {
     if (!game.getUnitPlacement())
         return {
             backgroundRect.w / 80 - 1 - (position.x + 10) / 80,
@@ -455,7 +453,8 @@ SDL_Point UI::calculateGridPosition(const SDL_Point &position, const Players &cu
     };
 }
 
-
+*/
+/*
 SDL_Point UI::snapToGrid(const int mouseX, const int mouseY) const {
     const int snapX = mouseX / (backgroundRect.w / game.getGridSize()) * (backgroundRect.w / game.getGridSize()) +
                       16;
@@ -463,7 +462,7 @@ SDL_Point UI::snapToGrid(const int mouseX, const int mouseY) const {
                       16;
     return {snapX, snapY};
 }
-
+*/
 void UI::drawMove() {
     if (isDragging && selectedPlacerRect != nullptr) {
         drawUnit(selectedPlacerRect);
