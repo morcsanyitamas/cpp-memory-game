@@ -4,7 +4,8 @@
 
 class Texture {
 public:
-    Texture(SDL_Texture *texture);
+    explicit Texture(SDL_Texture *texture);
+    Texture();
     Texture(const Texture& other);
     Texture& operator=(const Texture& other);
     ~Texture();

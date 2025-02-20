@@ -7,11 +7,16 @@
 
 class UI {
 public:
-    UI(IGame &game);
-
+    explicit UI(IGame &game);
     ~UI();
 
     bool init();
+
+    bool loadTextures();
+    void render();
+
+    void drawBackground();
+    void drawCards();
 
     Texture loadTexture(const std::string &filename);
 
@@ -19,33 +24,13 @@ public:
 
     //SDL_Renderer *getRenderer() { return renderer; }
 
-    //void run(bool &gameEnded, Players &player);
-
-    //void placeUnits(bool &gameEnded, Players &player);
 
     void delay(int time);
 
- //   void renderMenuUI();
-
-    //void renderUnitPlacement(const Players &currentPlayer, const std::vector<Ranks> &playerUnits);
-
     void renderBattlefield();
 
- //   void renderMove(const Players &currentPlayer);
 
-    //void drawUnit(const SDL_UnitRect *unitRect);
 
-   // void drawUnit(const SDL_UnitRect &unitRect);
-
-   // void drawUnit(Ranks rank, Players player, int &x, int &y);
-
-    //void drawUnit(Ranks rank, Players player, const int &x, const int &y, const int &i);
-
-   // void drawStartUnits();
-
-   // void drawBattlefieldUnits();
-
- //   void drawBattlefieldUnits(const Players &currentPlayer);
 
     void drawPlayerUI();
 
@@ -53,7 +38,7 @@ public:
 
     void drawHighlight(const SDL_Rect &rect, int thickness = 4);
 
-   // void drawStartUnits(const std::vector<Ranks> &playerUnits, const Players &player);
+
 
     void drawTexture(Texture &texture, SDL_Rect &rect, int width, int height, int x, int y);
 
@@ -71,6 +56,12 @@ public:
     SDL_Point snapToGrid(int mouseX, int mouseY) const;
 
 private:
+    SDL_Rect backgroundRectangle;
+    Texture backgroundTexture;
+
+    std::vector<SDL_Rect> cardRectangles;
+    std::vector<Texture> cardTextures;
+
     SDL_Window *window;
     SDL_Renderer *renderer;
     IGame &game;

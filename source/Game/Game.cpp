@@ -6,7 +6,9 @@ Game::Game() : ui(*this) {}
 
 void Game::run() {
     ui.init();
-    ui.renderBattlefield();
+    ui.loadTextures();
+    ui.render();
+    //ui.renderBattlefield();
     bool running = true;
     while (running) {
         ui.handleEvents(running);

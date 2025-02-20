@@ -11,29 +11,24 @@
 
 using namespace std;
 
-static auto path = (filesystem::current_path().parent_path() / ".." / "resources/").u8string();
-
+static auto const PATH = (filesystem::current_path() / "resources").u8string();
+vector<string> cards = {
+    "chase_marshall.png", "rubble_1.png", "rubble_2.png", "ryder_1.png", "ryder_2.png", "sky_1.png", "sky_2.png", "sky_everest.png"
+};
 
 SDL_Rect backgroundRect;
-SDL_Rect quitButtonRect;
-SDL_Rect playButtonRect;
-SDL_Rect restartButtonRect;
-SDL_Rect nextButtonRect;
-SDL_Rect logoRect;
+
 vector<SDL_Rect> cardPlacersRect;
-//vector<SDL_UnitRect> unitPlacerRects;
-//vector<SDL_UnitRect> unitRects;
+
 bool isDragging = false;
 SDL_Point originalPosition;
-//SDL_UnitRect *selectedPlacerRect = nullptr;
-//SDL_UnitRect *selectedRect = nullptr;
+
 
 SDL_Rect *selectedCardRect = nullptr;
 
 
 
-UI::UI(IGame &game) : window(nullptr), renderer(nullptr), game(game) {
-}
+UI::UI(IGame &game) : window(nullptr), renderer(nullptr), game(game) {}
 
 UI::~UI() {
     if (renderer) SDL_DestroyRenderer(renderer);
@@ -57,12 +52,38 @@ void UI::delay(int time) {
     SDL_Delay(time);
 }
 
+bool UI::loadTextures() {
+    backgroundTexture = loadTexture(PATH + "/background.png");
+    cardTextures.resize(cards.size());
+    for(int i = 0; i < cards.size(); i++) {
+        cardTextures[i] = loadTexture(PATH + "/" + cards[i]);
+    }
+    return true;
+}
+
+void UI::render() {
+    SDL_RenderClear(renderer);
+    drawBackground();
+    drawCards();
+    SDL_RenderPresent(renderer);
+}
+
+void UI::drawBackground() {
+    drawTexture(backgroundTexture, backgroundRect, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0);
+}
+
+void UI::drawCards() {
+    cardRectangles.resize(cards.size());
+    for(int i = 0; i < cards.size(); i++) {
+        drawTexture(cardTextures[i], cardRectangles[i], 132, 132, 0 + (i * 132), 425);
+    }
+}
+
 
 Texture UI::loadTexture(const string &filename) {
     SDL_Texture *imgTexture = IMG_LoadTexture(renderer, filename.c_str());
     if (nullptr == imgTexture) {
         cout << "File not found: " << filename << " SDL_image Error: " << IMG_GetError() << endl;
-        //printf("File not found: %s SDL_image Error: %s\n", filename.c_str(), IMG_GetError());
     }
 
     return Texture(imgTexture);
@@ -95,7 +116,7 @@ bool UI::createRenderer() {
 bool UI::initSDLImage() {
     int imgFlags = IMG_INIT_PNG | IMG_INIT_JPG;;
     if (!(IMG_Init(imgFlags) & imgFlags)) {
-        printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+        cout << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << endl;
         return false;
     }
     return true;
@@ -119,26 +140,7 @@ void UI::renderUnitPlacement(const Players &currentPlayer, const vector<Ranks> &
     SDL_RenderPresent(renderer);
 }
 */
-/*
-void UI::drawBattlefieldUnits(const Players &currentPlayer) {
-    unitRects.clear();
-    unitRects.resize(game.getGridSize() * game.getGridSize());
-    auto battleField = game.getBattlefield();
-    int x = 0;
-    for (int i = 0; i < battleField.size(); i++) {
-        for (int j = 0; j < battleField[i].size(); j++) {
-            if (battleField[i][j]->getUnit() != nullptr && battleField[i][j]->getUnit()->getRank() != Ranks::None) {
-                if (battleField[i][j]->getUnit()->getPlayer() == currentPlayer)
-                    drawUnit(battleField[i][j]->getUnit()->getRank(), battleField[i][j]->getUnit()->getPlayer(), j,
-                             i, x);
-                else
-                    drawUnit(Ranks::None, battleField[i][j]->getUnit()->getPlayer(), j,
-                             i, x);
-                x++;
-            }
-        }
-    }
-}*/
+
 
 void UI::renderBattlefield() {
     SDL_RenderClear(renderer);
@@ -167,106 +169,8 @@ void UI::drawPlayerUI() {
     }
 
 }
-/*
-void UI::renderMenuUI() {
-    SDL_RenderClear(renderer);
 
-    Texture strategoCover = loadTexture(path + "StrategoCover.png");
-    SDL_Rect strategoRect;
-    drawTexture(strategoCover, strategoRect, 1220, 820, 0, 0);
 
-    Texture playButton = loadTexture(path + "PlayButton.png");
-    drawTexture(playButton, playButtonRect, 200, 80, 530, 360);
-
-    Texture quitButton = loadTexture(path + "QuitButton.png");
-    drawTexture(quitButton, quitButtonRect, 200, 80, 530, 470);
-
-    SDL_RenderPresent(renderer);
-}*/
-/*
-void UI::drawUnit(const SDL_UnitRect &unitRect) {
-    Texture unitImage = loadTexture(path + "Units/" + toString(unitRect.player) + toString(unitRect.rank) + ".bmp");
-    unitImage.render(renderer, &unitRect);
-}
-
-void UI::drawUnit(const SDL_UnitRect *unitRect) {
-    Texture unitImage = loadTexture(path + "Units/" + toString(unitRect->player) + toString(unitRect->rank) + ".bmp");
-    unitImage.render(renderer, unitRect);
-}
-
-void UI::drawStartUnits() {
-    for (auto &unitRect: unitPlacerRects) {
-        Texture unitImage = loadTexture(
-            path + "Units/" + toString(unitRect.player) + toString(unitRect.rank) + ".bmp");
-        unitImage.render(renderer, &unitRect);
-    }
-}
-*
-void UI::drawBattlefieldUnits() {
-    for (auto &rect: unitRects) {
-        Texture unitImage = loadTexture(
-            path + "Units/" + toString(rect.player) + toString(rect.rank) +
-            ".bmp");
-        unitImage.render(renderer, &rect);
-    }
-}
-
-void UI::drawStartUnits(const vector<Ranks> &playerUnits, const Players &player) {
-    int xPos = 820;
-    int yPos = 180;
-
-    int numUnits = playerUnits.size();
-    unitPlacerRects.resize(numUnits);
-    int i = 0; // Unit counter
-
-    for (const auto &rank: playerUnits) {
-        Texture unitImage = loadTexture(path + "Units/" + toString(player) + toString(rank) + ".bmp");
-        // Assuming file format
-
-        SDL_UnitRect rect(rank, player);
-        rect.h = 70;
-        rect.w = 70;
-        rect.x = xPos;
-        rect.y = yPos;
-
-        unitPlacerRects[i] = rect;
-        unitImage.render(renderer, &rect);
-
-        xPos += 80;
-
-        if ((i + 1) % 5 == 0) {
-            xPos = 820;
-            yPos += 80;
-        }
-
-        i++;
-    }
-}
-/*
-void UI::drawUnit(Ranks rank, Players player, int &x, int &y) {
-    Texture unitImage = loadTexture(path + "Units/" + toString(player) + toString(rank) + ".bmp");
-
-    SDL_Rect rect;
-    rect.h = 70;
-    rect.w = 70;
-    rect.x = x * 80 + 16;
-    rect.y = y * 80 + 16;
-
-    unitImage.render(renderer, &rect);
-}*/
-/*
-void UI::drawUnit(const Ranks rank, const Players player, const int &x, const int &y, const int &i) {
-    Texture unitImage = loadTexture(path + "Units/" + toString(player) + toString(rank) + ".bmp");
-
-    SDL_UnitRect rect(rank, player);
-    rect.h = 70;
-    rect.w = 70;
-    rect.x = x * 80 + 16;
-    rect.y = y * 80 + 16;
-
-    unitImage.render(renderer, &rect);
-    unitRects[i] = rect;
-}*/
 
 void UI::drawTexture(Texture &texture, SDL_Rect &rect, int width, int height, int x, int y) {
     rect.h = height;
