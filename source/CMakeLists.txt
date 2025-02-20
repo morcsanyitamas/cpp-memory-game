@@ -3,7 +3,6 @@ set(SOURCES
         UI/UI.cpp
         UI/Texture.cpp
         Game/Game.cpp
-        Game/Field.cpp
 )
 
 add_executable(memory-game ${SOURCES})

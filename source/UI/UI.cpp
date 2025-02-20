@@ -3,12 +3,11 @@
 #include <filesystem>
 #include <functional>
 #include <UI.h>
-#include <SDL_UnitRect.h>
 #include <Texture.h>
 #include <unordered_map>
 
-#define BACKGROUND_WIDTH 1920
-#define BACKGROUND_HEIGHT 1080
+#define WINDOW_WIDTH 1024
+#define WINDOW_HEIGHT 573
 
 using namespace std;
 
@@ -22,12 +21,12 @@ SDL_Rect restartButtonRect;
 SDL_Rect nextButtonRect;
 SDL_Rect logoRect;
 vector<SDL_Rect> cardPlacersRect;
-vector<SDL_UnitRect> unitPlacerRects;
-vector<SDL_UnitRect> unitRects;
+//vector<SDL_UnitRect> unitPlacerRects;
+//vector<SDL_UnitRect> unitRects;
 bool isDragging = false;
 SDL_Point originalPosition;
-SDL_UnitRect *selectedPlacerRect = nullptr;
-SDL_UnitRect *selectedRect = nullptr;
+//SDL_UnitRect *selectedPlacerRect = nullptr;
+//SDL_UnitRect *selectedRect = nullptr;
 
 SDL_Rect *selectedCardRect = nullptr;
 
@@ -74,7 +73,7 @@ void UI::getWindowSize(int &width, int &height) {
 }
 
 bool UI::createWindow() {
-    window = SDL_CreateWindow("Paw Patrol", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 573,
+    window = SDL_CreateWindow("Paw Patrol", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT,
                               SDL_WINDOW_SHOWN);
     if (window == nullptr) {
         cout << "SDL_CreateWindow Error: " << SDL_GetError() << endl;
@@ -153,7 +152,7 @@ void UI::renderBattlefield() {
 
 void UI::drawPlayerUI() {
     Texture background = loadTexture((filesystem::current_path() / "resources" / "background.png").u8string());
-    drawTexture(background, backgroundRect, 1024, 573, 0, 0);
+    drawTexture(background, backgroundRect, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0);
 
     vector<string> cards = {
         "chase_marshall.png", "rubble_1.png", "rubble_2.png", "ryder_1.png", "ryder_2.png", "sky_1.png", "sky_2.png", "sky_everest.png"
@@ -168,7 +167,7 @@ void UI::drawPlayerUI() {
     }
 
 }
-
+/*
 void UI::renderMenuUI() {
     SDL_RenderClear(renderer);
 
@@ -183,8 +182,8 @@ void UI::renderMenuUI() {
     drawTexture(quitButton, quitButtonRect, 200, 80, 530, 470);
 
     SDL_RenderPresent(renderer);
-}
-
+}*/
+/*
 void UI::drawUnit(const SDL_UnitRect &unitRect) {
     Texture unitImage = loadTexture(path + "Units/" + toString(unitRect.player) + toString(unitRect.rank) + ".bmp");
     unitImage.render(renderer, &unitRect);
@@ -202,7 +201,7 @@ void UI::drawStartUnits() {
         unitImage.render(renderer, &unitRect);
     }
 }
-
+*
 void UI::drawBattlefieldUnits() {
     for (auto &rect: unitRects) {
         Texture unitImage = loadTexture(
@@ -243,7 +242,7 @@ void UI::drawStartUnits(const vector<Ranks> &playerUnits, const Players &player)
         i++;
     }
 }
-
+/*
 void UI::drawUnit(Ranks rank, Players player, int &x, int &y) {
     Texture unitImage = loadTexture(path + "Units/" + toString(player) + toString(rank) + ".bmp");
 
@@ -254,8 +253,8 @@ void UI::drawUnit(Ranks rank, Players player, int &x, int &y) {
     rect.y = y * 80 + 16;
 
     unitImage.render(renderer, &rect);
-}
-
+}*/
+/*
 void UI::drawUnit(const Ranks rank, const Players player, const int &x, const int &y, const int &i) {
     Texture unitImage = loadTexture(path + "Units/" + toString(player) + toString(rank) + ".bmp");
 
@@ -267,7 +266,7 @@ void UI::drawUnit(const Ranks rank, const Players player, const int &x, const in
 
     unitImage.render(renderer, &rect);
     unitRects[i] = rect;
-}
+}*/
 
 void UI::drawTexture(Texture &texture, SDL_Rect &rect, int width, int height, int x, int y) {
     rect.h = height;
@@ -464,6 +463,7 @@ SDL_Point UI::snapToGrid(const int mouseX, const int mouseY) const {
 }
 */
 void UI::drawMove() {
+/*
     if (isDragging && selectedPlacerRect != nullptr) {
         drawUnit(selectedPlacerRect);
         drawHighlight(*selectedPlacerRect);
@@ -473,6 +473,7 @@ void UI::drawMove() {
         drawUnit(selectedRect);
         drawHighlight(*selectedRect);
     }
+    */
 }
 
 void UI::drawHighlight(const SDL_Rect &rect, const int thickness) {

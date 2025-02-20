@@ -3,7 +3,6 @@
 #include <SDL.h>
 #include <string>
 #include <vector>
-#include <SDL_UnitRect.h>
 #include <Texture.h>
 
 class UI {
@@ -26,27 +25,27 @@ public:
 
     void delay(int time);
 
-    void renderMenuUI();
+ //   void renderMenuUI();
 
-    void renderUnitPlacement(const Players &currentPlayer, const std::vector<Ranks> &playerUnits);
+    //void renderUnitPlacement(const Players &currentPlayer, const std::vector<Ranks> &playerUnits);
 
     void renderBattlefield();
 
-    void renderMove(const Players &currentPlayer);
+ //   void renderMove(const Players &currentPlayer);
 
-    void drawUnit(const SDL_UnitRect *unitRect);
+    //void drawUnit(const SDL_UnitRect *unitRect);
 
-    void drawUnit(const SDL_UnitRect &unitRect);
+   // void drawUnit(const SDL_UnitRect &unitRect);
 
-    void drawUnit(Ranks rank, Players player, int &x, int &y);
+   // void drawUnit(Ranks rank, Players player, int &x, int &y);
 
-    void drawUnit(Ranks rank, Players player, const int &x, const int &y, const int &i);
+    //void drawUnit(Ranks rank, Players player, const int &x, const int &y, const int &i);
 
-    void drawStartUnits();
+   // void drawStartUnits();
 
-    void drawBattlefieldUnits();
+   // void drawBattlefieldUnits();
 
-    void drawBattlefieldUnits(const Players &currentPlayer);
+ //   void drawBattlefieldUnits(const Players &currentPlayer);
 
     void drawPlayerUI();
 
@@ -54,7 +53,7 @@ public:
 
     void drawHighlight(const SDL_Rect &rect, int thickness = 4);
 
-    void drawStartUnits(const std::vector<Ranks> &playerUnits, const Players &player);
+   // void drawStartUnits(const std::vector<Ranks> &playerUnits, const Players &player);
 
     void drawTexture(Texture &texture, SDL_Rect &rect, int width, int height, int x, int y);
 
@@ -77,8 +76,6 @@ private:
     IGame &game;
 
     bool createWindow();
-
     bool createRenderer();
-
     bool initSDLImage();
 };
