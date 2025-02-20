@@ -1,5 +1,4 @@
-# cpp-memory-game
-
-thread for sdl rendering loop
-legyenek más képek
-minden más törlése
+# Future improvements
+* on case of drag -> highlight the dragged element
+* define grid
+* snap to grid

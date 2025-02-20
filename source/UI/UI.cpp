@@ -32,13 +32,28 @@ UI::UI(IGame &game) : window(nullptr), renderer(nullptr), game(game) {
     selectedCardRect = nullptr;
 
     initLayout();
+    loadTextures();
+
+    renderThread = std::thread(&UI::renderLoop, this, 16);  // 60 FPS
 }
 
 UI::~UI() {
+    running = false;
+    if (renderThread.joinable()) {
+        renderThread.join();
+    }
+
     if (renderer) SDL_DestroyRenderer(renderer);
     if (window) SDL_DestroyWindow(window);
     IMG_Quit();
     SDL_Quit();
+}
+
+void UI::renderLoop(int const delay) const {
+    while (running) {
+        render();
+        this_thread::sleep_for(chrono::milliseconds(delay));
+    }
 }
 
 bool UI::init() {
@@ -52,10 +67,6 @@ bool UI::init() {
     return true;
 }
 
-void UI::delay(int time) {
-    SDL_Delay(time);
-}
-
 void UI::initLayout() {
     cardTextures.resize(CARDS.size());
     cardRectangles.resize(CARDS.size());
@@ -67,7 +78,6 @@ void UI::initLayout() {
     }
 }
 
-
 bool UI::loadTextures() {
     backgroundTexture = loadTexture(PATH + "/background.png");
     for(int i = 0; i < CARDS.size(); i++) {
@@ -76,35 +86,29 @@ bool UI::loadTextures() {
     return true;
 }
 
-void UI::render() {
+void UI::render() const {
     SDL_RenderClear(renderer);
     drawBackground();
     drawCards();
     SDL_RenderPresent(renderer);
 }
 
-void UI::drawBackground() {
+void UI::drawBackground() const {
     backgroundTexture.render(renderer, &backgroundRectangle);
 }
 
-void UI::drawCards() {
+void UI::drawCards() const {
     for(int i = 0; i < cardTextures.size(); i++) {
         cardTextures[i].render(renderer, &cardRectangles[i]);
     }
 }
 
-
-Texture UI::loadTexture(const string &filename) {
+Texture UI::loadTexture(const string &filename) const {
     SDL_Texture *imgTexture = IMG_LoadTexture(renderer, filename.c_str());
     if (nullptr == imgTexture) {
         cout << "File not found: " << filename << " SDL_image Error: " << IMG_GetError() << endl;
     }
-
     return Texture(imgTexture);
-}
-
-void UI::getWindowSize(int &width, int &height) {
-    SDL_GetWindowSize(window, &width, &height);
 }
 
 bool UI::createWindow() {
@@ -135,36 +139,8 @@ bool UI::initSDLImage() {
     }
     return true;
 }
-/*
-void UI::renderUnitPlacement(const Players &currentPlayer, const vector<Ranks> &playerUnits) {
-    SDL_SetRenderDrawColor(renderer, 53, 24, 6, 0);
-    SDL_RenderClear(renderer);
-    drawPlayerUI();
 
-    if (!unitPlacerRects.empty() && unitPlacerRects[0].player == currentPlayer)
-        drawStartUnits();
-    else
-        drawStartUnits(playerUnits, currentPlayer);
-
-    if (currentPlayer == Players::Blue)
-        drawBattlefieldUnits(currentPlayer);
-
-    drawMove();
-
-    SDL_RenderPresent(renderer);
-}
-*/
-
-
-void UI::drawTexture(Texture &texture, SDL_Rect &rect, int width, int height, int x, int y) {
-    rect.h = height;
-    rect.w = width;
-    rect.x = x;
-    rect.y = y;
-    texture.render(renderer, &rect);
-}
-
-bool isMouseInsideRect(int mouseX, int mouseY, SDL_Rect &rect) {
+bool UI::isMouseInsideRect(int const mouseX, int const mouseY, SDL_Rect const& rect) {
     return (mouseX > rect.x &&
             mouseX < rect.x + rect.w &&
             mouseY > rect.y &&
@@ -181,7 +157,7 @@ void UI::handleEvents(bool &running) {
         }
 
         if (e.type == SDL_MOUSEBUTTONDOWN) {
-            handleMouseDownEvent(e, running, isDragging, originalPosition);
+            handleMouseDownEvent(e, isDragging, originalPosition);
             break;
         }
 
@@ -197,10 +173,10 @@ void UI::handleEvents(bool &running) {
     }
 }
 
-void UI::handleMouseDownEvent(const SDL_Event &e, bool &running, bool &isDragging,
+void UI::handleMouseDownEvent(const SDL_Event &e, bool &isDragging,
                               SDL_Point &originalPosition) {
-    int mouseX = e.button.x;
-    int mouseY = e.button.y;
+    int const mouseX = e.button.x;
+    int const mouseY = e.button.y;
 
     if (!cardRectangles.empty())
         for (auto &cardRectangle: cardRectangles) {
@@ -211,163 +187,24 @@ void UI::handleMouseDownEvent(const SDL_Event &e, bool &running, bool &isDraggin
                 break;
             }
         }
-/*
-    if (!unitRects.empty())
-        for (auto &unitRect: unitRects) {
-            if (isMouseInsideRect(mouseX, mouseY, unitRect)) {
-                isDragging = true;
-                selectedRect = &unitRect;
-                originalPosition = {selectedRect->x, selectedRect->y};
-                break;
-            }
-        }
-        */
 }
 
 void UI::handleMouseMotionEvent(const SDL_Event &e, const bool &isDragging) {
-    int mouseX = e.motion.x;
-    int mouseY = e.motion.y;
+    int const mouseX = e.motion.x;
+    int const mouseY = e.motion.y;
 
     if (isDragging && selectedCardRect != nullptr) {
         selectedCardRect->x = mouseX - selectedCardRect->w / 2;
         selectedCardRect->y = mouseY - selectedCardRect->h / 2;
-
-        // Frissítsd a képernyőt
-        render();
-    /*
-        SDL_RenderClear(renderer);
-
-        Texture background = loadTexture((filesystem::current_path() / "resources" / "background.png").u8string());
-        drawTexture(background, backgroundRect, 1024, 573, 0, 0);
-
-        vector<string> cards = {
-            "chase_marshall.png", "rubble_1.png", "rubble_2.png", "ryder_1.png", "ryder_2.png", "sky_1.png", "sky_2.png", "sky_everest.png"
-        };
-
-        for(int i = 0; i < cards.size(); i++) {
-            Texture cardTexture = loadTexture((filesystem::current_path() / "resources" / cards[i]).u8string());
-            cardTexture.render(renderer, &cardPlacersRect[i]);
-
-        }
-
-        SDL_RenderPresent(renderer);
-        */
     }
-
-
-
-    /*
-    if (isDragging && selectedRect != nullptr) {
-        selectedRect->x = mouseX - selectedRect->w / 2;
-        selectedRect->y = mouseY - selectedRect->h / 2;
-    }
-    */
 }
 
 void UI::handleMouseUpEvent(const SDL_Event &e, SDL_Point &originalPosition) {
-    int mouseX = e.button.x;
-    int mouseY = e.button.y;
-    int flooredX = 0;
-    int flooredY = 0;
-
-    //auto snappedPosition = snapToGrid(mouseX, mouseY);
-/*
-    if (!game.getUnitPlacement()) {
-        if (currentPlayer == Players::Blue) {
-            flooredX = (snappedPosition.x + 10) / 80;
-            flooredY = snappedPosition.y - 490 < 0 ? -1 : (snappedPosition.y + 10) / 80;
-        } else {
-            flooredX = backgroundRect.w / 80 - 1 - (snappedPosition.x + 10) / 80;
-            flooredY = snappedPosition.y - 490 < 0 ? -1 : backgroundRect.h / 80 - 1 - (snappedPosition.y + 10) / 80;
-        }
-    } else {
-        flooredX = (snappedPosition.x + 10) / 80;
-        flooredY = snappedPosition.y < 0 ? -1 : (snappedPosition.y + 10) / 80;
-    }
-*/
     if (selectedCardRect != nullptr) {
-        //cout << game.checkUnitPlaceInBounds({flooredX, flooredY}) << endl;
-        if (true) {
-            //selectedCardRect->x = snappedPosition.x;
-            //selectedCardRect->y = snappedPosition.y;
-            //auto pos = calculateGridPosition(originalPosition, currentPlayer);
-            /*if (game.checkMoveInBounds({pos.x, pos.y}) && !game.checkTargetFieldEmpty({pos.x, pos.y})) {
-                game.removeUnit(pos);
-            }
-            game.placeUnit({flooredX, flooredY}, selectedPlacerRect->player, selectedPlacerRect->rank);*/
-        }
         isDragging = false;
         selectedCardRect = nullptr;
         originalPosition = {0, 0};
     }
-/*
-    if (selectedRect != nullptr) {
-        auto from = calculateGridPosition(originalPosition, currentPlayer);
-        cout << "FROM X: " << from.x << " FROM Y: " << from.y << endl;
-        auto to = calculateGridPosition(snappedPosition, currentPlayer);
-        cout << "TO X: " << flooredX << " TO Y: " << flooredY << endl;
-        if (game.handleAction({from.x, from.y}, {flooredX, flooredY},
-                              currentPlayer)) {
-            selectedRect->x = snappedPosition.x;
-            selectedRect->y = snappedPosition.y;
-            if (game.checkGameOver(currentPlayer))
-                game.setGameEnded(true);
-            game.changePlayer(currentPlayer);
-            game.middleMirrorBattlefield();
-            SDL_Delay(300);
-            drawBattlefieldUnits(currentPlayer);
-        } else {
-            selectedRect->x = originalPosition.x;
-            selectedRect->y = originalPosition.y;
-        }
-        isDragging = false;
-        selectedRect = nullptr;
-        originalPosition = {0, 0};
-    }
-    */
 }
 
-/*
-SDL_Point UI::calculateGridPosition(const SDL_Point &position) const {
-    if (!game.getUnitPlacement())
-        return {
-            backgroundRect.w / 80 - 1 - (position.x + 10) / 80,
-            position.y - 490 < 0 ? -1 : backgroundRect.h / 80 - 1 - (position.y + 10) / 80
-        };
-    return {
-        (position.x / (backgroundRect.w / 10) * (backgroundRect.w / 10) + 16) / 80,
-        (position.y / (backgroundRect.h / 10) * (backgroundRect.h / 10) + 16) / 80
-    };
-}
 
-*/
-/*
-SDL_Point UI::snapToGrid(const int mouseX, const int mouseY) const {
-    const int snapX = mouseX / (backgroundRect.w / game.getGridSize()) * (backgroundRect.w / game.getGridSize()) +
-                      16;
-    const int snapY = mouseY / (backgroundRect.h / game.getGridSize()) * (backgroundRect.h / game.getGridSize()) +
-                      16;
-    return {snapX, snapY};
-}
-*/
-void UI::drawMove() {
-/*
-    if (isDragging && selectedPlacerRect != nullptr) {
-        drawUnit(selectedPlacerRect);
-        drawHighlight(*selectedPlacerRect);
-    }
-
-    if (isDragging && selectedRect != nullptr) {
-        drawUnit(selectedRect);
-        drawHighlight(*selectedRect);
-    }
-    */
-}
-
-void UI::drawHighlight(const SDL_Rect &rect, const int thickness) {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    for (int offset = 0; offset < thickness; offset++) {
-        SDL_Rect highlightRect = {rect.x - offset, rect.y - offset, rect.w + 2 * offset, rect.h + 2 * offset};
-        SDL_RenderDrawRect(renderer, &highlightRect);
-    }
-}
