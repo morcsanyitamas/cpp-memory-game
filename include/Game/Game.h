@@ -7,5 +7,7 @@ class Game : public IGame {
 public:
     Game();
     ~Game() = default;
+    void startGame() override;
+    void endGame() override;
     void run();
 };

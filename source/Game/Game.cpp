@@ -4,8 +4,16 @@ using namespace std;
 
 Game::Game() : ui(*this) {}
 
+void Game::startGame() {
+    running = true;
+}
+
+void Game::endGame() {
+    running = false;
+}
+
 void Game::run() {
-    bool running = true;
+    startGame();
     while (running) {
         ui.handleEvents(running);
     }
