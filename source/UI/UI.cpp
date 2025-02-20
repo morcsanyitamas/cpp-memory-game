@@ -12,23 +12,27 @@
 using namespace std;
 
 static auto const PATH = (filesystem::current_path() / "resources").u8string();
-vector<string> cards = {
-    "chase_marshall.png", "rubble_1.png", "rubble_2.png", "ryder_1.png", "ryder_2.png", "sky_1.png", "sky_2.png", "sky_everest.png"
+static vector<string> const CARDS = {
+    "chase_marshall.png",
+    "rubble_1.png",
+    "rubble_2.png",
+    "ryder_1.png",
+    "ryder_2.png",
+    "sky_1.png",
+    "sky_2.png",
+    "sky_everest.png"
 };
 
-SDL_Rect backgroundRect;
+UI::UI(IGame &game) : window(nullptr), renderer(nullptr), game(game) {
+    if (!init()) {
+        throw std::runtime_error("Failed to initialize UI");
+    }
 
-vector<SDL_Rect> cardPlacersRect;
+    isDragging = false;
+    selectedCardRect = nullptr;
 
-bool isDragging = false;
-SDL_Point originalPosition;
-
-
-SDL_Rect *selectedCardRect = nullptr;
-
-
-
-UI::UI(IGame &game) : window(nullptr), renderer(nullptr), game(game) {}
+    initLayout();
+}
 
 UI::~UI() {
     if (renderer) SDL_DestroyRenderer(renderer);
@@ -52,11 +56,22 @@ void UI::delay(int time) {
     SDL_Delay(time);
 }
 
+void UI::initLayout() {
+    cardTextures.resize(CARDS.size());
+    cardRectangles.resize(CARDS.size());
+
+    backgroundRectangle = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+
+    for(int i = 0; i < CARDS.size(); i++) {
+        cardRectangles[i] = {0 + (i * 132), 425, 132, 132};
+    }
+}
+
+
 bool UI::loadTextures() {
     backgroundTexture = loadTexture(PATH + "/background.png");
-    cardTextures.resize(cards.size());
-    for(int i = 0; i < cards.size(); i++) {
-        cardTextures[i] = loadTexture(PATH + "/" + cards[i]);
+    for(int i = 0; i < CARDS.size(); i++) {
+        cardTextures[i] = loadTexture(PATH + "/" + CARDS[i]);
     }
     return true;
 }
@@ -69,13 +84,12 @@ void UI::render() {
 }
 
 void UI::drawBackground() {
-    drawTexture(backgroundTexture, backgroundRect, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0);
+    backgroundTexture.render(renderer, &backgroundRectangle);
 }
 
 void UI::drawCards() {
-    cardRectangles.resize(cards.size());
-    for(int i = 0; i < cards.size(); i++) {
-        drawTexture(cardTextures[i], cardRectangles[i], 132, 132, 0 + (i * 132), 425);
+    for(int i = 0; i < cardTextures.size(); i++) {
+        cardTextures[i].render(renderer, &cardRectangles[i]);
     }
 }
 
@@ -142,36 +156,6 @@ void UI::renderUnitPlacement(const Players &currentPlayer, const vector<Ranks> &
 */
 
 
-void UI::renderBattlefield() {
-    SDL_RenderClear(renderer);
-
-    drawPlayerUI();
-    //drawBattlefieldUnits();
-    //drawMove();
-
-    SDL_RenderPresent(renderer);
-}
-
-void UI::drawPlayerUI() {
-    Texture background = loadTexture((filesystem::current_path() / "resources" / "background.png").u8string());
-    drawTexture(background, backgroundRect, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0);
-
-    vector<string> cards = {
-        "chase_marshall.png", "rubble_1.png", "rubble_2.png", "ryder_1.png", "ryder_2.png", "sky_1.png", "sky_2.png", "sky_everest.png"
-    };
-
-    cardPlacersRect.resize(8);
-
-    for(int i = 0; i < cards.size(); i++) {
-        Texture cardTexture = loadTexture((filesystem::current_path() / "resources" / cards[i]).u8string());
-        drawTexture(cardTexture, cardPlacersRect[i], 132, 132, 0 + (i * 132), 425);
-
-    }
-
-}
-
-
-
 void UI::drawTexture(Texture &texture, SDL_Rect &rect, int width, int height, int x, int y) {
     rect.h = height;
     rect.w = width;
@@ -218,14 +202,11 @@ void UI::handleMouseDownEvent(const SDL_Event &e, bool &running, bool &isDraggin
     int mouseX = e.button.x;
     int mouseY = e.button.y;
 
-
-
-
-    if (!cardPlacersRect.empty())
-        for (auto &cardPlacerRect: cardPlacersRect) {
-            if (isMouseInsideRect(mouseX, mouseY, cardPlacerRect)) {
+    if (!cardRectangles.empty())
+        for (auto &cardRectangle: cardRectangles) {
+            if (isMouseInsideRect(mouseX, mouseY, cardRectangle)) {
                 isDragging = true;
-                selectedCardRect = &cardPlacerRect;
+                selectedCardRect = &cardRectangle;
                 originalPosition = {selectedCardRect->x, selectedCardRect->y};
                 break;
             }
@@ -252,6 +233,8 @@ void UI::handleMouseMotionEvent(const SDL_Event &e, const bool &isDragging) {
         selectedCardRect->y = mouseY - selectedCardRect->h / 2;
 
         // Frissítsd a képernyőt
+        render();
+    /*
         SDL_RenderClear(renderer);
 
         Texture background = loadTexture((filesystem::current_path() / "resources" / "background.png").u8string());
@@ -268,6 +251,7 @@ void UI::handleMouseMotionEvent(const SDL_Event &e, const bool &isDragging) {
         }
 
         SDL_RenderPresent(renderer);
+        */
     }
 
 

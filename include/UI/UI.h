@@ -10,11 +10,10 @@ public:
     explicit UI(IGame &game);
     ~UI();
 
-    bool init();
-
+    void initLayout();
     bool loadTextures();
-    void render();
 
+    void render();
     void drawBackground();
     void drawCards();
 
@@ -26,33 +25,19 @@ public:
 
 
     void delay(int time);
-
-    void renderBattlefield();
-
-
-
-
-    void drawPlayerUI();
-
     void drawMove();
 
     void drawHighlight(const SDL_Rect &rect, int thickness = 4);
-
-
-
     void drawTexture(Texture &texture, SDL_Rect &rect, int width, int height, int x, int y);
 
     void handleEvents(bool &running);
-
     void handleMouseDownEvent(const SDL_Event &e, bool &running, bool &isDragging,
                               SDL_Point &originalPosition);
 
     void handleMouseUpEvent(const SDL_Event &e, SDL_Point &originalPosition);
-
     void handleMouseMotionEvent(const SDL_Event &e, const bool &isDragging);
 
     SDL_Point calculateGridPosition(const SDL_Point &position) const;
-
     SDL_Point snapToGrid(int mouseX, int mouseY) const;
 
 private:
@@ -66,7 +51,12 @@ private:
     SDL_Renderer *renderer;
     IGame &game;
 
+    bool isDragging;
+    SDL_Point originalPosition;
+    SDL_Rect *selectedCardRect;
+
     bool createWindow();
     bool createRenderer();
     bool initSDLImage();
+    bool init();
 };
