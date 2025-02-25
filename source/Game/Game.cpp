@@ -1,4 +1,5 @@
 #include <Game.h>
+#include <iostream>
 
 using namespace std;
 
@@ -17,4 +18,6 @@ void Game::run() {
     while (running) {
         ui.handleEvents(running);
     }
+
+    std::cout << "Game ended" << std::endl;
 }

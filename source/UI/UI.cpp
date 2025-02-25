@@ -38,22 +38,27 @@ UI::UI(IGame &game) : window(nullptr), renderer(nullptr), game(game) {
 }
 
 UI::~UI() {
-    running = false;
-    if (renderThread.joinable()) {
-        renderThread.join();
-    }
 
-    if (renderer) SDL_DestroyRenderer(renderer);
-    if (window) SDL_DestroyWindow(window);
+    //cout << "UI destructor" << endl;
+
+    if (renderer) {
+        SDL_DestroyRenderer(renderer);
+        renderer = nullptr;
+    }
+    if (window) {
+        SDL_DestroyWindow(window);
+        window = nullptr;
+    }
     IMG_Quit();
     SDL_Quit();
 }
 
 void UI::renderLoop(int const delay) const {
-    while (running) {
+    while (renderThreadRunning) {
         render();
         this_thread::sleep_for(chrono::milliseconds(delay));
     }
+    cout << "Render thread ended" << endl;
 }
 
 bool UI::init() {
@@ -152,6 +157,12 @@ void UI::handleEvents(bool &running) {
 
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT) {
+
+            renderThreadRunning = false;
+            if (renderThread.joinable()) {
+                renderThread.join();
+            }
+
             running = false;
             break;
         }
