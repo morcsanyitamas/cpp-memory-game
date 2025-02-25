@@ -16,7 +16,7 @@ void Game::endGame() {
 void Game::run() {
     startGame();
     while (running) {
-        ui.handleEvents(running);
+        ui.handleEvents();
     }
     cout << "Game ended" << std::endl;
 }

@@ -156,7 +156,7 @@ bool UI::isMouseInsideRect(int const mouseX, int const mouseY, SDL_Rect const& r
             mouseY < rect.y + rect.h);
 }
 
-void UI::handleEvents(bool &running) {
+void UI::handleEvents() {
     SDL_Event e;
 
     while (SDL_PollEvent(&e) != 0) {
@@ -167,7 +167,7 @@ void UI::handleEvents(bool &running) {
                 renderThread.join();
             }
 
-            running = false;
+            game.endGame();
             break;
         }
 

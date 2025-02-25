@@ -11,7 +11,7 @@ class UI {
 public:
     explicit UI(IGame &game);
     ~UI();
-    void handleEvents(bool &running);
+    void handleEvents();
 private:
     Texture loadTexture(const std::string &filename) const;
 
