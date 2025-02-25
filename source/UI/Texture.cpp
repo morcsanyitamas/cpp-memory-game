@@ -1,16 +1,26 @@
-#include <Texture.h>
+#include "Texture.h"
 
-Texture::Texture(SDL_Texture *texture): texture(std::shared_ptr<SDL_Texture>(texture, SDL_DestroyTexture)) {}
+Texture::Texture(SDL_Texture *texture) : texture(texture) {}
 Texture::Texture() : texture(nullptr) {}
-Texture::Texture(const Texture& other) : texture(other.texture) {}
-Texture::~Texture() = default;
-
-Texture& Texture::operator=(const Texture& other) {
-    if (this == &other) return *this;
-    texture = other.texture;
+Texture::Texture(Texture&& other) noexcept : texture(other.texture) {
+    other.texture = nullptr;
+}
+Texture& Texture::operator=(Texture&& other) noexcept {
+    if (this != &other) {
+        if (texture) {
+            SDL_DestroyTexture(texture);
+        }
+        texture = other.texture;
+        other.texture = nullptr;
+    }
     return *this;
 }
-
+Texture::~Texture() {
+    if (texture) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+    }
+}
 void Texture::render(SDL_Renderer *renderer, const SDL_Rect *rect) const {
-    SDL_RenderCopy(renderer, texture.get(), nullptr, rect);
+    SDL_RenderCopy(renderer, texture, nullptr, rect);
 }

@@ -39,13 +39,17 @@ UI::UI(IGame &game) : window(nullptr), renderer(nullptr), game(game) {
 
 UI::~UI() {
 
-    //cout << "UI destructor" << endl;
+    cout << "Destroying Texture objects" << endl;
+    cardTextures.clear();
+    backgroundTexture = Texture();
 
     if (renderer) {
+        cout << "Destroying renderer" << endl;
         SDL_DestroyRenderer(renderer);
         renderer = nullptr;
     }
     if (window) {
+        cout << "Destroying window" << endl;
         SDL_DestroyWindow(window);
         window = nullptr;
     }

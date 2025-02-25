@@ -36,7 +36,7 @@ private:
     SDL_Rect *selectedCardRect;
 
     std::thread renderThread;
-    std::atomic<bool> renderThreadRunning;
+    std::atomic<bool> renderThreadRunning = true;
 
     bool createWindow();
     bool createRenderer();

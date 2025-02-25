@@ -18,6 +18,5 @@ void Game::run() {
     while (running) {
         ui.handleEvents(running);
     }
-
-    std::cout << "Game ended" << std::endl;
+    cout << "Game ended" << std::endl;
 }
